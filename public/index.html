@@ -4,42 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Argo High School Chatbot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    body { font-family: Arial, sans-serif; }
-    #chatbox { width: 500px; margin: 50px auto; }
-    #messages { border: 1px solid #ccc; height: 300px; padding: 10px; overflow-y: scroll; }
-    .message { margin: 10px 0; }
-    .user { color: blue; }
-    .bot { color: green; }
-    #input { width: 100%; padding: 10px; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chatbox {
+      width: 400px;
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #header {
+      background: #4CAF50;
+      padding: 20px;
+      color: white;
+      text-align: center;
+      font-size: 1.2em;
+    }
+    #messages {
+      height: 400px;
+      padding: 20px;
+      overflow-y: scroll;
+      border-bottom: 1px solid #ccc;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      position: relative;
+      max-width: 80%;
+    }
+    .user {
+      background: #DCF8C6;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .bot {
+      background: #ECECEC;
+      align-self: flex-start;
+    }
+    #input-container {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    #input {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      outline: none;
+    }
+    #send {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px;
+      cursor: pointer;
+    }
+    #send i {
+      font-size: 1.2em;
+    }
   </style>
 </head>
 <body>
   <div id="chatbox">
+    <div id="header">Argo High School Chatbot</div>
     <div id="messages"></div>
-    <input type="text" id="input" placeholder="Ask a question..." />
+    <div id="input-container">
+      <input type="text" id="input" placeholder="Ask a question..." />
+      <button id="send"><i class="fas fa-paper-plane"></i></button>
+    </div>
   </div>
   <script>
     const input = document.getElementById('input');
+    const sendButton = document.getElementById('send');
     const messages = document.getElementById('messages');
-
-    input.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        const userMessage = input.value;
-        displayMessage(userMessage, 'user');
-        input.value = '';
-
-        fetch('/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: userMessage })
-        })
-        .then(response => response.json())
-        .then(data => {
-          displayMessage(data.answer, 'bot');
-        });
-      }
-    });
 
     function displayMessage(message, sender) {
       const messageElement = document.createElement('div');
@@ -48,6 +94,31 @@
       messages.appendChild(messageElement);
       messages.scrollTop = messages.scrollHeight;
     }
+
+    function sendMessage() {
+      const userMessage = input.value;
+      if (!userMessage.trim()) return;
+      displayMessage(userMessage, 'user');
+      input.value = '';
+
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: userMessage })
+      })
+      .then(response => response.json())
+      .then(data => {
+        displayMessage(data.answer, 'bot');
+      });
+    }
+
+    input.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    sendButton.addEventListener('click', sendMessage);
   </script>
 </body>
 </html>
